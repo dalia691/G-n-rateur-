@@ -1,3 +1,4 @@
+@@ -1,296 +1,310 @@
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -89,6 +90,7 @@
         })
         document.getElementById('telecharger').addEventListener('click', (e) => {
             e.preventDefault()
+            table.download("xlsx", "data.xls", { sheetName: "MyData" });
             table.setGroupBy([(data) => data.getClassement(3)])
             table.download("xlsx", "data.xlsx", { sheetName: "MyData" })
             table.setGroupBy([(data) => data.getClassement(1, true), (data) => data.getClassement(3)])
@@ -172,6 +174,7 @@
             return `<h1>${document.querySelector('#type-doc option:checked').textContent}<h1><h3>Collection ${document.querySelector('#collection').value}</h3>`
         }
         function getFooter() {
+            return `<h4>${document.querySelector('#type-doc option:checked').textContent} généré le ${moment().format("LLLL")}</h4>`
             const date = new Date()
             return `<h4>${document.querySelector('#type-doc option:checked').textContent} généré le ${date.toLocaleDateString()} à ${date.toLocaleTimeString()}</h4>`
         }
@@ -195,9 +198,11 @@
                         title: "Dates",
                         columns: [
                             {
+                                title: "Version", field: "date_version", hozAlign: "center", formatter: dateFormatter, sorter: ((a, b, aRow, bRow, column, dir, sorterParams) => a - b), print: true
                                 title: "Edition", field: "date_edition", hozAlign: "center", formatter: dateFormatter, sorter: ((a, b, aRow, bRow, column, dir, sorterParams) => a - b), print: true
                             },
                             {
+                                title: "Edition", field: "date_edition", hozAlign: "center", formatter: dateFormatter, sorter: ((a, b, aRow, bRow, column, dir, sorterParams) => a - b), print: true
                                 title: "Version", field: "date_version", hozAlign: "center", formatter: dateFormatter, sorter: ((a, b, aRow, bRow, column, dir, sorterParams) => a - b), print: true
                             },
                             {
@@ -207,6 +212,7 @@
                     },
                     { title: "Nb ex. Papier", field: "quantite_papier", sorter: "number", download: false, print: true, bottomCalc: "sum", hozAlign: "center" },
                     { title: "Nb ex. Démat.", field: "quantite_intranet", sorter: "number", download: false, print: true, bottomCalc: "sum", hozAlign: "center" },
+                    { title: "Réception", field: "okReception", hozAlign: "center", editor: true, formatter: "tickCross", download: false, print: false },
                     { title: "Pointage", field: "okReception", hozAlign: "center", editor: true, formatter: "tickCross", download: true, print: false },
 
                 ],
@@ -263,6 +269,7 @@
                 },
             });
             table.addColumn({
+                title: "Commentaires RCO", editor: "textarea", field: "commentaires", download: false, editorParams: {
                 title: "Commentaires RCO", editor: "textarea", field: "commentaires", download: true, print: true, editableTitle: true, editorParams: {
                     verticalNavigation: "editor"
                 }
@@ -307,5 +314,3 @@
 
     </script>
 </body>
-
-</html>
