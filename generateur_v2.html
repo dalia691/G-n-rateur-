@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur inventaire RCO v2</title>
+
+    <!-- Librairies -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@latest/moment.min.js"></script>
+    <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+    <link href="https://unpkg.com/tabulator-tables@latest/dist/css/tabulator.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/tabulator-tables@latest/dist/js/tabulator.min.js"></script>
+    <script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            margin: 0;
+            background: white;
+        }
+
+        button {
+            font-family: 'Quicksand', sans-serif;
+            margin: 5px;
+            padding: 5px 10px;
+        }
+
+        #tableau-content {
+            visibility: hidden;
+            margin-top: 20px;
+        }
+
+        #telecharger {
+            background-color: orange;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Générateur Inventaire RCO v2</h1>
+
+    <form class="parametres no-print" id="form-tableau">
+        <input type="file" name="inventaire" id="inventaire" accept=".csv,.xls,.xlsx" required>
+        <button type="button" id="importer">Importer le fichier</button>
+        <input type="text" name="collection" id="collection" placeholder="Nom de la collection" required>
+        <select name="type_doc" id="type-doc">
+            <option value="repertoire">Répertoire trimestriel</option>
+            <option value="liste">Liste Globale</option>
+        </select>
+        <label for="vigueur-uniquement">Documents en vigueur uniquement
+            <input type="checkbox" name="vigueur-uniquement" id="vigueur-uniquement" checked>
+        </label>
+        <button type="button" id="valider">Générer le tableau</button>
+    </form>
+
+    <div id="tableau-content">
+        <button id="impression">Imprimer les éléments visibles</button>
+        <button id="impression-selection">Imprimer sélection</button>
+        <button id="telecharger">Télécharger</button>
+        <div id="table"></div>
+    </div>
+
+    <script>
+        moment.locale('fr');
+        let donneesChargees = null;
+        let table = null;
+
+        // === Bouton Importer le fichier ===
+        document.getElementById('importer').addEventListener('click', () => {
+            const fileInput = document.getElementById('inventaire');
+            const file = fileInput.files[0];
+            if (!file) return alert("Choisir un fichier d'abord !");
+            const fileName = file.name.toLowerCase();
+
+            if (fileName.endsWith(".csv")) {
+                Papa.parse(file, {
+                    header: true,
+                    dynamicTyping: true,
+                    complete: function (results) {
+                        donneesChargees = results.data;
+                        alert("CSV importé avec succès !");
+                    }
+                });
+            } else if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: "array" });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    donneesChargees = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                    alert("Excel importé avec succès !");
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                alert("Format non supporté");
+            }
+        });
+
+        // === Bouton Générer le tableau ===
+        document.getElementById('valider').addEventListener('click', () => {
+            if (!donneesChargees) return alert("Importer un fichier avant de générer le tableau !");
+            document.getElementById('tableau-content').style.visibility = "visible";
+            traiterDonnees(donneesChargees);
+        });
+
+        // === Fonction pour créer le tableau Tabulator ===
+        function traiterDonnees(donnees) {
+            if (!donnees || donnees.length === 0) return alert("Aucune donnée à afficher !");
+            
+            // Si Tabulator existe déjà, on le détruit
+            if (table) table.destroy();
+
+            table = new Tabulator("#table", {
+                data: donnees,
+                layout: "fitColumns",
+                pagination: "local",
+                paginationSize: 20,
+                columns: Object.keys(donnees[0]).map(col => ({
+                    title: col,
+                    field: col,
+                    headerFilter: true
+                }))
+            });
+        }
+
+        // === Boutons impression / téléchargement ===
+        document.getElementById('impression').addEventListener('click', () => {
+            if (table) table.print(true, true);
+        });
+
+        document.getElementById('impression-selection').addEventListener('click', () => {
+            if (table) table.print("selected", false, false);
+        });
+
+        document.getElementById('telecharger').addEventListener('click', () => {
+            if (table) table.download("xlsx", "export.xlsx", { sheetName: "MyData" });
+        });
+    </script>
+</body>
+</html>
