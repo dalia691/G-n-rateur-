@@ -2,26 +2,38 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Test Boutons</title>
+<title>Générateur Inventaire Test</title>
 <style>
     body { font-family: sans-serif; margin: 20px; }
-    button { margin: 5px; padding: 5px 10px; }
+    button { margin: 5px; padding: 10px 15px; font-size:16px; }
+    #tableau-content { margin-top:20px; visibility:hidden; }
 </style>
 </head>
 <body>
-<h1>Test boutons</h1>
 
-<input type="file" id="inventaire" accept=".csv,.xls,.xlsx">
-<button type="button" id="importer">Importer le fichier</button>
-<button type="button" id="generer">Générer le tableau</button>
+<h1>Générateur Inventaire Test</h1>
 
-<div id="tableau-content" style="visibility:hidden; margin-top:20px;">
-    <div id="table">Ici le tableau apparaîtra</div>
+<!-- Input et boutons -->
+<input type="file" id="inventaire" accept=".csv,.xls,.xlsx"><br>
+<button id="importer">Importer le fichier</button>
+<button id="generer">Générer le tableau</button>
+
+<!-- Conteneur pour le tableau -->
+<div id="tableau-content">
+    <div id="table" style="margin-top:10px; border:1px solid #ccc; padding:10px;">Tableau apparaîtra ici</div>
 </div>
 
 <script>
-document.getElementById('importer').addEventListener('click', () => alert("Importer cliqué !"));
-document.getElementById('generer').addEventListener('click', () => alert("Générer cliqué !"));
+// Test des boutons visibles
+document.getElementById('importer').addEventListener('click', () => {
+    alert("Bouton Importer cliqué !");
+});
+
+document.getElementById('generer').addEventListener('click', () => {
+    alert("Bouton Générer cliqué !");
+    document.getElementById('tableau-content').style.visibility = 'visible';
+});
 </script>
+
 </body>
 </html>
