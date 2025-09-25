@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Test Boutons</title>
+<style>
+    body { font-family: sans-serif; margin: 20px; }
+    button { margin: 5px; padding: 5px 10px; }
+</style>
+</head>
+<body>
+<h1>Test boutons</h1>
+
+<input type="file" id="inventaire" accept=".csv,.xls,.xlsx">
+<button type="button" id="importer">Importer le fichier</button>
+<button type="button" id="generer">Générer le tableau</button>
+
+<div id="tableau-content" style="visibility:hidden; margin-top:20px;">
+    <div id="table">Ici le tableau apparaîtra</div>
+</div>
+
+<script>
+document.getElementById('importer').addEventListener('click', () => alert("Importer cliqué !"));
+document.getElementById('generer').addEventListener('click', () => alert("Générer cliqué !"));
+</script>
+</body>
+</html>
